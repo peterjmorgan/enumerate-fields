@@ -43,7 +43,8 @@ def main(argc, argv):
 
     # connect to jira
     print(f"[*] Connecting to Jira...")
-    jira = JIRA(jira_domain, basic_auth=(jira_email, jira_token))
+    # jira = JIRA(jira_domain, basic_auth=(jira_email, jira_token))
+    jira = JIRA(jira_domain, token_auth=(jira_token))
     print(f"[*] Connected")
 
     issue = jira.issue(issue_id)
@@ -79,7 +80,16 @@ def main(argc, argv):
         print(f"Field Name: {fieldmap.get(customfield)}")
         print(f"Field ID: {customfield}")
         allowed = metadata.get('fields').get(customfield).get('allowedValues')
-        print(allowed)
+        for af in allowed:
+            print(f"\tID: {af.get('id')} - Value: {af.get('value')}")
+
+        print("\n")
+
+    print("Issue Type: ID + Name")
+    issuetype_allowed = metadata.get('fields').get('issuetype').get('allowedValues')
+    # print(issuetype_allowed)
+    for elem in issuetype_allowed:
+        print(f"ID: {elem.get('id')} Name: {elem.get('name')}")
 
 
 if __name__ == "__main__":
