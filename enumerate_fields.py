@@ -6,6 +6,7 @@ import json
 
 from jira import JIRA
 from rich import print
+from IPython import embed
 
 def get_env():
     jira_domain = os.getenv('JIRA_DOMAIN','unset')
@@ -32,10 +33,17 @@ def create_fieldmap(jira):
 
 
 def main(argc, argv):
+    repl = False
+
     if argc < 2:
         print("USAGE: enumerate_fields.py <jira_issue_id>")
         print("Example: python enumerate_fields.py VULN-5")
         return
+
+    if 3 == argc:
+        if "ipython" == argv[2]:
+            repl = True
+
 
     issue_id = argv[1]
 
@@ -62,7 +70,7 @@ def main(argc, argv):
 
 
     issue_fields = raw_issue.get('fields')
-    
+
     # Identify custom fields that are select boxes
     customfield_keys = []
     for key, val in issue_fields.items():
@@ -76,6 +84,15 @@ def main(argc, argv):
     # Enumerate options for custom fields
     metadata = jira.editmeta(issue_id)
 
+    description = metadata.get('fields').get('description')
+    print(f"Description ============")
+    print(description)
+
+    summary = metadata.get('fields').get('summary')
+    print(f"Summary=================")
+    print(summary)
+
+    print(f"Custom Fields ================")
     for customfield in customfield_keys:
         print(f"Field Name: {fieldmap.get(customfield)}")
         print(f"Field ID: {customfield}")
@@ -85,11 +102,15 @@ def main(argc, argv):
 
         print("\n")
 
+    print("Jira Issue Types =============")
     print("Issue Type: ID + Name")
     issuetype_allowed = metadata.get('fields').get('issuetype').get('allowedValues')
     # print(issuetype_allowed)
     for elem in issuetype_allowed:
         print(f"ID: {elem.get('id')} Name: {elem.get('name')}")
+
+    if repl:
+        embed()
 
 
 if __name__ == "__main__":
